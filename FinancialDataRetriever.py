@@ -7,7 +7,8 @@ class FDR:
     def __init__(self):
         binance = ccxt.binance()
         self.tfs = binance.timeframes
-        self.markets = binance.load_markets()
+        self.markets_data = binance.load_markets()
+        self.markets = list(self.markets_data.keys())
 
     def retrieve_all_data(self,ticker, tf, save = False, path = "data", verbose = False, date_index = False):
         binance = ccxt.binance()

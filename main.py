@@ -1,7 +1,4 @@
-
 from DataDownloader import DataDownloader
-
-
 #QComboBox,
 #QPushButton,
 #@Label("Hello")
