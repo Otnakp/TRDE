@@ -1,0 +1,8 @@
+.env
+/trade_env
+/data
+trials.py
+/__pycache__
+help.txt
+.vscode
+.vscode/*
