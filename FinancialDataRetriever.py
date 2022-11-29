@@ -7,10 +7,17 @@ class FDR:
     def __init__(self):
         binance = ccxt.binance()
         self.tfs = binance.timeframes
+        # self.tfs = ['1w', '1M'] for testing this is good
         self.markets_data = binance.load_markets()
         self.markets = list(self.markets_data.keys())
 
     def retrieve_all_data(self,ticker, tf, save = False, path = "data", verbose = False, date_index = False):
+        if verbose:
+            print("Starting")
+        if ticker not in self.markets:
+            raise ValueError(f"Cannot find {ticker}")
+        if tf not in self.tfs:
+            raise ValueError(f"Cannot find {tf}")
         binance = ccxt.binance()
         since = 1
         prev_since = since
