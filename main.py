@@ -1,4 +1,5 @@
 from DataDownloader import DataDownloader
+from IndicatorsWidget import IndicatorsWidget
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt6.QtGui import QPalette, QColor
@@ -14,7 +15,6 @@ class Color(QWidget):
         palette.setColor(QPalette.ColorRole.Window, QColor(color))
         self.setPalette(palette)
 
-
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(DataDownloader(), 0, 0)
 
-        layout.addWidget(Color("green"), 0, 1)
+        layout.addWidget(IndicatorsWidget(), 0, 1)
         layout.addWidget(Color('green'), 0, 2)
         layout.addWidget(Color('blue'), 1, 0)
         layout.addWidget(Color('purple'), 1, 1)

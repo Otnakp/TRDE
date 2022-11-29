@@ -1,5 +1,7 @@
 .env
 /trade_env
+/env
+/Indicators/__pycache__
 /data
 trials.py
 /__pycache__

@@ -31,7 +31,7 @@ class DataDownloader(QWidget):
     def __init__(self):
         super(DataDownloader, self).__init__()
         self.fdr = FDR()
-        layout = QVBoxLayout()
+        self.layout = QVBoxLayout()
         self.tfs_combo = QComboBox()
         self.markets_combo = QComboBox()
         for tf in self.fdr.tfs:
@@ -45,11 +45,11 @@ class DataDownloader(QWidget):
         self.b_download_selected.pressed.connect(self.download_selected_tf)
         self.b_download_all_tfs.pressed.connect(self.retrieve_all_timeframes)
 
-        layout.addWidget(self.markets_combo)
-        layout.addWidget(self.tfs_combo)
-        layout.addWidget(self.b_download_selected)
-        layout.addWidget(self.b_download_all_tfs)
-        self.setLayout(layout)
+        self.layout.addWidget(self.markets_combo)
+        self.layout.addWidget(self.tfs_combo)
+        self.layout.addWidget(self.b_download_selected)
+        self.layout.addWidget(self.b_download_all_tfs)
+        self.setLayout(self.layout)
     
     def download_selected_tf(self):
         self.thread = QThread()
