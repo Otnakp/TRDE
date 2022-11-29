@@ -1,8 +1,6 @@
 import ccxt
 from pathlib import Path
 import pandas as pd
-
-
 class FDR:
     def __init__(self):
         binance = ccxt.binance()
@@ -22,6 +20,13 @@ class FDR:
         since = 1
         prev_since = since
         data = {} # Using a dictionary is good because it automatically removes duplicates
+        try:
+            data = pd.read_csv(f"{path}/{ticker}/{tf}.csv",index_col = 0)
+            since = df.index[-1]
+            prev_since = since
+            data = data.to_dict(orient="list")
+        except Exception:
+            pass # data has never been retrieved before
         if verbose:
             print(f"Starting to retrieve for {ticker}, tf: {tf}")
         while True:

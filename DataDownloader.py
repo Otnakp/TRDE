@@ -1,9 +1,7 @@
 from FinancialDataRetriever import FDR
 import pandas as pd
-from PyQt6.QtWidgets import QWidget,QComboBox, QGridLayout, QVBoxLayout, QPushButton
-from PyQt6.QtCore import QThread, pyqtSignal,QObject
-
-#data = pd.read_csv("data/BTC_USDT/1d.csv",index_col = 0,parse_dates=True)
+from PyQt6.QtWidgets import QWidget,QComboBox, QVBoxLayout, QPushButton
+from PyQt6.QtCore import QThread, pyqtSignal
 
 class AllTfsDownloader(QThread):
     finished = pyqtSignal()
@@ -41,8 +39,8 @@ class DataDownloader(QWidget):
         self.markets_combo.addItems(self.fdr.markets)
         self.markets_combo.setEditable(True)
 
-        self.b_download_selected = QPushButton("Download")
-        self.b_download_all_tfs = QPushButton("Download all TFs")
+        self.b_download_selected = QPushButton("Download or Update")
+        self.b_download_all_tfs = QPushButton("Download or Update all TFs")
 
         self.b_download_selected.pressed.connect(self.download_selected_tf)
         self.b_download_all_tfs.pressed.connect(self.retrieve_all_timeframes)
@@ -85,7 +83,3 @@ class DataDownloader(QWidget):
         self.b_download_all_tfs.setEnabled(False)
         self.thread.start()
         self.thread.finished.connect(lambda: self.enable_buttons())
-
-
-        
-

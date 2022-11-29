@@ -1,21 +1,12 @@
 from DataDownloader import DataDownloader
-#QComboBox,
-#QPushButton,
-#@Label("Hello")
-#QVBoxLayout,
-#QComboBox
-#QListWidget
-#QLineEdit
-#QWidget,
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt6.QtGui import QPalette, QColor
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton, QVBoxLayout
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout
 from PyQt6.QtGui import QPalette, QColor
 
 class Color(QWidget):
-
     def __init__(self, color):
         super(Color, self).__init__()
         self.setAutoFillBackground(True)
