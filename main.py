@@ -1,5 +1,6 @@
 from DataDownloader import DataDownloader
 from IndicatorsWidget import IndicatorsWidget
+from DataPlotterWidget import DataPlotterWidget
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt6.QtGui import QPalette, QColor
@@ -23,14 +24,17 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("My App")
 
         layout = QGridLayout()
+        self.data_downloader_widget = DataDownloader()
+        self.indicators_widget = IndicatorsWidget()
+        self.data_plotter_widget = DataPlotterWidget(self.data_downloader_widget)
 
-        layout.addWidget(DataDownloader(), 0, 0)
+        layout.addWidget(self.data_downloader_widget, 0, 0)
 
-        layout.addWidget(IndicatorsWidget(), 0, 1)
-        layout.addWidget(Color('green'), 0, 2)
-        layout.addWidget(Color('blue'), 1, 0)
-        layout.addWidget(Color('purple'), 1, 1)
-        layout.addWidget(Color('purple'), 1, 2)
+        layout.addWidget(self.indicators_widget, 0, 1)
+        layout.addWidget(self.data_plotter_widget, 0, 2)
+        layout.addWidget(IndicatorsWidget(), 1, 0)
+        layout.addWidget(IndicatorsWidget(), 1, 1)
+        layout.addWidget(IndicatorsWidget(), 1, 2)
 
 
         widget = QWidget()

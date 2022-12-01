@@ -26,7 +26,6 @@ class TfDownloaderWorker(QThread):
         self.fdr.retrieve_all_data(tf=self.tf, ticker = self.ticker, save = True)
         self.finished.emit()
 
-
 class DataDownloader(QWidget):
     def __init__(self):
         super(DataDownloader, self).__init__()
@@ -83,3 +82,8 @@ class DataDownloader(QWidget):
         self.b_download_all_tfs.setEnabled(False)
         self.thread.start()
         self.thread.finished.connect(lambda: self.enable_buttons())
+
+    def get_current_config(self):
+        ticker = self.markets_combo.currentText()
+        tf = self.tfs_combo.currentText()
+        return ticker, tf
