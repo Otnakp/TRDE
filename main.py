@@ -5,7 +5,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt6.QtGui import QPalette, QColor
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QSizePolicy
 from PyQt6.QtGui import QPalette, QColor
 
 class Color(QWidget):
@@ -27,6 +27,12 @@ class MainWindow(QMainWindow):
         self.data_downloader_widget = DataDownloader()
         self.indicators_widget = IndicatorsWidget()
         self.data_plotter_widget = DataPlotterWidget(self.data_downloader_widget)
+        #self.data_downloader_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+        #self.indicators_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+        #self.data_plotter_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.MinimumExpanding)
+        
+        self.data_downloader_widget.tfs_combo.currentTextChanged.connect(self.data_plotter_widget.tf_changed)
+        self.data_downloader_widget.markets_combo.currentTextChanged.connect(self.data_plotter_widget.market_changed)
 
         layout.addWidget(self.data_downloader_widget, 0, 0)
 
@@ -35,6 +41,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(IndicatorsWidget(), 1, 0)
         layout.addWidget(IndicatorsWidget(), 1, 1)
         layout.addWidget(IndicatorsWidget(), 1, 2)
+        
 
 
         widget = QWidget()
