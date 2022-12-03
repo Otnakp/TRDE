@@ -9,7 +9,7 @@ class FDR:
         self.markets_data = binance.load_markets()
         self.markets = list(self.markets_data.keys())
 
-    def retrieve_all_data(self,ticker, tf, save = False, path = "data", verbose = False, date_index = False):
+    def retrieve_all_data(self,ticker, tf, save = False, path = "data", verbose = True, date_index = False):
         if verbose:
             print("Starting")
         if ticker not in self.markets:
@@ -21,11 +21,13 @@ class FDR:
         prev_since = since
         data = {} # Using a dictionary is good because it automatically removes duplicates
         try:
-            data = pd.read_csv(f"{path}/{ticker}/{tf}.csv",index_col = 0)
+            df = pd.read_csv(Path(path) / Path(ticker.replace('/','_') / Path(tf+'.csv')), index_col = 0)
             since = df.index[-1]
             prev_since = since
             data = data.to_dict(orient="list")
         except Exception:
+            if verbose:
+                print("pass")
             pass # data has never been retrieved before
         if verbose:
             print(f"Starting to retrieve for {ticker}, tf: {tf}")
@@ -35,6 +37,7 @@ class FDR:
             for candle in d:
                 data[candle[0]] = candle[1:]
                 since = candle[0]
+            print(since)
             if prev_since == since:
                 if verbose:
                     print(f"Done Retrieving.")
@@ -50,6 +53,8 @@ class FDR:
                     p.mkdir(parents=True, exist_ok=True)
                     p = p / Path(tf + '.csv')
                     df.to_csv(p)
+                    if verbose:
+                        print("Saved")
                 return df
     
     def retrieve_all_tfs(self,ticker, save = False, path = "data", verbose = False):

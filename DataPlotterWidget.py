@@ -17,7 +17,7 @@ import Indicators.PersonalizedIndicators as PersonalizedIndicators
 """
 plots the data
 """
-
+base_time_string = "DD/MM/YYYY hh:mm:ss"
 def ms_to_datetime(ms):
     return datetime.datetime.fromtimestamp(ms/1000.0)
 
@@ -82,8 +82,8 @@ class ChangeTextDateRunnable(QRunnable):
             self.t_start_date.setText(str(ms_to_datetime(df.index[-1])))
             self.t_end_date.setText(str(ms_to_datetime(df.index[-l])))
         except Exception as e:
-            self.t_end_date.setText("DD/MM/YYYY")
-            self.t_start_date.setText("DD/MM/YYYY")
+            self.t_end_date.setText(base_time_string)
+            self.t_start_date.setText(base_time_string)
             print(e)
 
 class DataPlotterWidget(QWidget):
@@ -104,8 +104,8 @@ class DataPlotterWidget(QWidget):
         #self.calendar_layout.addWidget(self.stop_calendar)
         #self.layout.addLayout(self.calendar_layout)
 
-        self.t_start_date = QLineEdit("DD/MM/YYYY")
-        self.t_end_date = QLineEdit("DD/MM/YYYY")
+        self.t_start_date = QLineEdit(base_time_string)
+        self.t_end_date = QLineEdit(base_time_string)
         try:
             df = self.df_getter.get_df()
             self.t_start_date.setText(str(ms_to_datetime(df.index[-1])))
