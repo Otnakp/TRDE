@@ -1,4 +1,4 @@
-def indicator2(a):
+def my_indicator1(a):
     pass
-def indicator3(a):
+def my_indicator2(a):
     pass

@@ -5,17 +5,19 @@ class FDR:
     def __init__(self):
         binance = ccxt.binance()
         self.tfs = binance.timeframes
-        # self.tfs = ['1w', '1M'] for testing this is good
         self.markets_data = binance.load_markets()
         self.markets = list(self.markets_data.keys())
+        self.tfs.pop('1s', None)
+        # self.tfs = ['1w', '1M'] #for testing this is good
 
-    def retrieve_all_data(self,ticker, tf, save = False, path = "data", verbose = True, date_index = False):
+    def retrieve_all_data(self,ticker, tf, save = False, path = "data", verbose = True, date_index = False, progress = None, string_progress = None):
         if verbose:
             print("Starting")
         if ticker not in self.markets:
             raise ValueError(f"Cannot find {ticker}")
         if tf not in self.tfs:
             raise ValueError(f"Cannot find {tf}")
+        d = 0
         binance = ccxt.binance()
         since = 1
         prev_since = since
@@ -24,7 +26,10 @@ class FDR:
             df = pd.read_csv(Path(path) / Path(ticker.replace('/','_') / Path(tf+'.csv')), index_col = 0)
             since = df.index[-1]
             prev_since = since
-            data = data.to_dict(orient="list")
+            if progress is not None:
+                progress.emit(since)
+            data = df.T.to_dict("list")
+            
         except Exception:
             if verbose:
                 print("pass")
@@ -32,12 +37,15 @@ class FDR:
         if verbose:
             print(f"Starting to retrieve for {ticker}, tf: {tf}")
         while True:
+            if string_progress is not None:
+                string_progress.emit(f"{ticker} {tf}")
             d = binance.fetch_ohlcv(ticker,tf,since=since,limit=1000)
             prev_since = since
             for candle in d:
                 data[candle[0]] = candle[1:]
                 since = candle[0]
-            print(since)
+            if progress is not None:
+                progress.emit(since)
             if prev_since == since:
                 if verbose:
                     print(f"Done Retrieving.")
@@ -57,7 +65,7 @@ class FDR:
                         print("Saved")
                 return df
     
-    def retrieve_all_tfs(self,ticker, save = False, path = "data", verbose = False):
+    def retrieve_all_tfs(self,ticker, save = False, path = "data", verbose = False, progress = None, string_progress = None):
         for tf in self.tfs:
-            self.retrieve_all_data(ticker = ticker, tf = tf, path = path, save = save, verbose = verbose)
+            self.retrieve_all_data(ticker = ticker, tf = tf, path = path, save = save, verbose = verbose, progress = progress, string_progress=string_progress)
     

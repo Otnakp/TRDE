@@ -23,41 +23,12 @@ def MA10(**kwargs):
     ma = df.rolling(30).mean()
     ma.dropna(inplace=True)
 
-def indicator2(a):
+def MA100(**kwargs):
     pass
-def indicator3(a):
+
+def EMA100(**kwargs):
     pass
-def indicator4(a):
+
+def BOLL(**kwargs):
     pass
-def indicator5(a):
-    pass
-def indicator6(a):
-    pass
-def indicator7(a):
-    pass
-def indicator8(a):
-    pass
-def indicator9(a):
-    pass
-def indicator10(a):
-    pass
-def indicator11(a):
-    pass
-def indicator12(a):
-    pass
-def indicator13(a):
-    pass
-def indicator14(a):
-    pass
-def indicator15(a):
-    pass
-def indicator16(a):
-    pass
-def indicator17(a):
-    pass
-def indicator18(a):
-    pass
-def indicator19(a):
-    pass
-def indicator20(a):
-    pass
+
