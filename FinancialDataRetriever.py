@@ -29,7 +29,6 @@ class FDR:
             if progress is not None:
                 progress.emit(since)
             data = df.T.to_dict("list")
-            
         except Exception:
             if verbose:
                 print("pass")

@@ -16,7 +16,7 @@ class IndicatorsWidget(QWidget):
     def __init__(self):
         super(IndicatorsWidget, self).__init__()
         Path("Indicators").mkdir(parents=True, exist_ok=True)
-        self.layout = QVBoxLayout()
+        self.layout = QHBoxLayout()
         self.lw_base_indicators = QListWidget()
         self.lw_personalized_indicators = QListWidget()
         self.base_indicators = dict(inspect.getmembers(BaseIndicators, inspect.isfunction))
@@ -39,24 +39,37 @@ class IndicatorsWidget(QWidget):
         self.lw_personalized_indicators.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         self.lw_base_indicators.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         
-        self.title_layout = QHBoxLayout()
-        self.title_layout.addWidget(self.l_base_indicators)
-        self.title_layout.addWidget(self.l_personalized_indicators)
+        #self.title_layout = QHBoxLayout()
+        #self.title_layout.addWidget(self.l_base_indicators)
+        #self.title_layout.addWidget(self.l_personalized_indicators)
 
-        self.search_layout = QHBoxLayout()
-        self.search_layout.addWidget(self.t_search_base)
-        self.search_layout.addWidget(self.t_search_personalized)
+        #self.search_layout = QHBoxLayout()
+        #self.search_layout.addWidget(self.t_search_base)
+        #self.search_layout.addWidget(self.t_search_personalized)
 
-        self.list_view_layout = QHBoxLayout()
-        self.list_view_layout.addWidget(self.lw_base_indicators)
-        self.list_view_layout.addWidget(self.lw_personalized_indicators)
+        #self.list_view_layout = QHBoxLayout()
+        #self.list_view_layout.addWidget(self.lw_base_indicators)
+        #self.list_view_layout.addWidget(self.lw_personalized_indicators)
 
+        self.base = QVBoxLayout()
+        self.base.addWidget(self.l_base_indicators)
+        self.base.addWidget(self.t_search_base)
+        self.base.addWidget(self.lw_base_indicators)
+
+        self.personalized = QVBoxLayout()
+        self.personalized.addWidget(self.l_personalized_indicators)
+        self.personalized.addWidget(self.t_search_personalized)
+        self.personalized.addWidget(self.lw_personalized_indicators)
+        
         self.t_search_base.textChanged.connect(self.search_in_base_indicators)
         self.t_search_personalized.textChanged.connect(self.search_in_personalized_indicators)
 
-        self.layout.addLayout(self.title_layout)
-        self.layout.addLayout(self.search_layout)
-        self.layout.addLayout(self.list_view_layout)
+        #self.layout.addLayout(self.title_layout)
+        #self.layout.addLayout(self.search_layout)
+        #self.layout.addLayout(self.list_view_layout)
+
+        self.layout.addLayout(self.base)
+        self.layout.addLayout(self.personalized)
         
         self.setLayout(self.layout)
     

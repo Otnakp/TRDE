@@ -9,6 +9,8 @@ import datetime
 import plotly.graph_objects as go
 import Indicators.BaseIndicators as BaseIndicators
 import json
+from bisect import bisect_left
+import Utilities
 import Indicators.PersonalizedIndicators as PersonalizedIndicators
 from DataDownloader import DataDownloader
 import Indicators.BaseIndicators as BaseIndicators
@@ -17,6 +19,7 @@ import Indicators.PersonalizedIndicators as PersonalizedIndicators
 """
 plots the data
 """
+
 base_time_string = "DD/MM/YYYY hh:mm:ss"
 def ms_to_datetime(ms):
     return datetime.datetime.fromtimestamp(ms/1000.0)
@@ -47,12 +50,14 @@ def get_candles_num(df, t_max_candles, config):
     return l
 
 class PlotRunnable(QRunnable):
-    def __init__(self, df_getter, data_downloader, t_max_candles, config):
+    def __init__(self, df_getter, data_downloader, t_max_candles, config, t_start_date, t_end_date):
         super(PlotRunnable, self).__init__()
         self.data_downloader = data_downloader
         self.t_max_candles = t_max_candles
         self.config = config
         self.df_getter = df_getter
+        self.t_start_date = t_start_date
+        self.t_end_date = t_end_date
 
     def run(self):
         try:
@@ -79,8 +84,8 @@ class ChangeTextDateRunnable(QRunnable):
         try:
             df = self.df_getter.get_df()
             l = get_candles_num(df = df, t_max_candles=self.t_max_candles, config = self.config)
-            self.t_start_date.setText(str(ms_to_datetime(df.index[-1])))
-            self.t_end_date.setText(str(ms_to_datetime(df.index[-l])))
+            self.t_start_date.setText(str(ms_to_datetime(df.index[-l])))
+            self.t_end_date.setText(str(ms_to_datetime(df.index[-1])))
         except Exception as e:
             self.t_end_date.setText(base_time_string)
             self.t_start_date.setText(base_time_string)
@@ -108,14 +113,17 @@ class DataPlotterWidget(QWidget):
         self.t_end_date = QLineEdit(base_time_string)
         try:
             df = self.df_getter.get_df()
-            self.t_start_date.setText(str(ms_to_datetime(df.index[-1])))
+            self.t_end_date.setText(str(ms_to_datetime(df.index[-1])))
         except Exception as e:
             print(e)
 
         self.date_layout = QVBoxLayout()
         self.date_layout.addWidget(self.t_start_date)
-        self.date_layout.addWidget(self.t_end_date)
+        #self.date_layout.addWidget(self.t_end_date)
         self.layout.addLayout(self.date_layout)
+
+        self.t_start_date.textChanged.connect(self.recalculate_candles_num)
+        self.t_end_date.textChanged.connect(self.recalculate_candles_num)
 
         self.t_max_candles = QLineEdit(str(self.default_num_candles))
         self.t_max_candles.textChanged.connect(self._change_dates)
@@ -129,7 +137,7 @@ class DataPlotterWidget(QWidget):
         self.setLayout(self.layout)
 
     def plot(self):
-        runnable = PlotRunnable(df_getter = self.df_getter, data_downloader=self.data_downloader, t_max_candles=self.t_max_candles, config=self.config)
+        runnable = PlotRunnable(df_getter = self.df_getter, data_downloader=self.data_downloader, t_max_candles=self.t_max_candles, config=self.config, t_start_date=self.t_start_date, t_end_date=self.t_end_date)
         QThreadPool.globalInstance().start(runnable)
     
     def _change_dates(self):
@@ -141,3 +149,10 @@ class DataPlotterWidget(QWidget):
         
     def market_changed(self, a):
         self._change_dates()
+
+    def recalculate_candles_num(self):
+        # todo: need to recalculate the number of candles but
+        # this needs to take into account the current time frame
+
+        pass
+    

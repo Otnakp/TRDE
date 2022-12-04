@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QWidget,QComboBox, QVBoxLayout, QPushButton, QLabel,
 from PyQt6.QtCore import QThread, pyqtSignal
 from pathlib import Path
 import Utilities
+
 class AllTfsDownloader(QThread):
     finished = pyqtSignal()
     progress = pyqtSignal(float)
@@ -48,7 +49,7 @@ class DataDownloader(QWidget):
         self.b_download_selected.pressed.connect(self.download_selected_tf)
         self.b_download_all_tfs.pressed.connect(self.retrieve_all_timeframes)
 
-        self.l_download_status = QLabel("Select")
+        self.l_download_status = QLabel("")
         self.l_downloading = QLabel("")
         self.l_ticker_tf_report = QLabel("")
         self.l_download_status.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
