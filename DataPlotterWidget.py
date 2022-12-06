@@ -20,7 +20,7 @@ import Indicators.PersonalizedIndicators as PersonalizedIndicators
 plots the data
 """
 
-base_time_string = "DD/MM/YYYY hh:mm:ss"
+base_time_string = "yyyy-mm-dd hh:mm:ss"
 def ms_to_datetime(ms):
     return datetime.datetime.fromtimestamp(ms/1000.0)
 
@@ -50,45 +50,39 @@ def get_candles_num(df, t_max_candles, config):
     return l
 
 class PlotRunnable(QRunnable):
-    def __init__(self, df_getter, data_downloader, t_max_candles, config, t_start_date, t_end_date):
+    def __init__(self, df_getter, data_downloader, t_max_candles, config, t_start):
         super(PlotRunnable, self).__init__()
         self.data_downloader = data_downloader
         self.t_max_candles = t_max_candles
         self.config = config
         self.df_getter = df_getter
-        self.t_start_date = t_start_date
-        self.t_end_date = t_end_date
+        self.t_start = t_start
 
     def run(self):
         try:
             df = self.df_getter.get_df()
-            l = get_candles_num(df, t_max_candles=self.t_max_candles, config = self.config)
-            fig = go.Figure(data = [go.Candlestick(x=pd.to_datetime(df.index[-l:], unit='ms'),
-                                    open = df.iloc[-l:,0], high = df.iloc[-l:,1], 
-                                    low = df.iloc[-l:,2], close = df.iloc[-l:,3])])
+            l = get_candles_num(df, self.t_max_candles, self.config)
+            s = int(self.t_start.text())
+            fig = go.Figure(data = [go.Candlestick(x=pd.to_datetime(df.index[s:s+l], unit='ms'),
+                                    open = df.iloc[s:s+l,0], high = df.iloc[s:s+l,1], 
+                                    low = df.iloc[s:s+l,2], close = df.iloc[s:s+l,3])])
             fig.show()
         except Exception as e:
             print(e)
 
 class ChangeTextDateRunnable(QRunnable):
-    def __init__(self, df_getter,data_downloader, t_max_candles, config, t_start_date, t_end_date):
+    def __init__(self, df_getter,data_downloader, t_max_candles, config):
         super(ChangeTextDateRunnable, self).__init__()
         self.df_getter = df_getter
         self.data_downloader = data_downloader
         self.t_max_candles = t_max_candles
         self.config = config
-        self.t_start_date = t_start_date
-        self.t_end_date = t_end_date
         
     def run(self):
         try:
             df = self.df_getter.get_df()
             l = get_candles_num(df = df, t_max_candles=self.t_max_candles, config = self.config)
-            self.t_start_date.setText(str(ms_to_datetime(df.index[-l])))
-            self.t_end_date.setText(str(ms_to_datetime(df.index[-1])))
         except Exception as e:
-            self.t_end_date.setText(base_time_string)
-            self.t_start_date.setText(base_time_string)
             print(e)
 
 class DataPlotterWidget(QWidget):
@@ -98,50 +92,48 @@ class DataPlotterWidget(QWidget):
         self.data_downloader = data_downloader
         self.layout = QVBoxLayout()
         self.default_num_candles = 2000
+
         self.df_getter = DfGetter(self.data_downloader)
-
-        #self.start_calendar = QCalendarWidget()
-        #self.stop_calendar = QCalendarWidget()
-        #self.calendar_layout = QVBoxLayout()
-        #self.start_calendar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
-        #self.stop_calendar.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
-        #self.calendar_layout.addWidget(self.start_calendar)
-        #self.calendar_layout.addWidget(self.stop_calendar)
-        #self.layout.addLayout(self.calendar_layout)
-
-        self.t_start_date = QLineEdit(base_time_string)
-        self.t_end_date = QLineEdit(base_time_string)
         try:
             df = self.df_getter.get_df()
-            self.t_end_date.setText(str(ms_to_datetime(df.index[-1])))
         except Exception as e:
             print(e)
 
         self.date_layout = QVBoxLayout()
-        self.date_layout.addWidget(self.t_start_date)
-        #self.date_layout.addWidget(self.t_end_date)
         self.layout.addLayout(self.date_layout)
-
-        self.t_start_date.textChanged.connect(self.recalculate_candles_num)
-        self.t_end_date.textChanged.connect(self.recalculate_candles_num)
+        self.t_start = QLineEdit("0")
+        self.l_start_date = QLabel("")
+        self.l_start_date.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
 
         self.t_max_candles = QLineEdit(str(self.default_num_candles))
         self.t_max_candles.textChanged.connect(self._change_dates)
         self.b_plot = QPushButton("PLOT")
         self.b_plot.pressed.connect(self.plot)
+        self.candles_layout = QVBoxLayout()
         self.in_layout = QHBoxLayout()
-        self.in_layout.addWidget(QLabel("Max candles"))
+        self.in_layout.addWidget(QLabel("Start"))
+        self.in_layout.addWidget(self.t_start)
+        self.in_layout.addWidget(QLabel("Amount"))
         self.in_layout.addWidget(self.t_max_candles)
-        self.layout.addLayout(self.in_layout)
+        self.candles_layout.addLayout(self.in_layout)
+        self.candles_layout.addWidget(self.l_start_date)
+        #self.start_layout = QHBoxLayout()
+        #self.start_layout.addWidget(QLabel("Start"))
+        #self.start_layout.addWidget(self.t_start)
+        #self.layout.addLayout(self.start_layout)
+        self.layout.addLayout(self.candles_layout)
         self.layout.addWidget(self.b_plot)
         self.setLayout(self.layout)
 
+        self.t_start.textChanged.connect(self.check_candle_start)
+
+
     def plot(self):
-        runnable = PlotRunnable(df_getter = self.df_getter, data_downloader=self.data_downloader, t_max_candles=self.t_max_candles, config=self.config, t_start_date=self.t_start_date, t_end_date=self.t_end_date)
+        runnable = PlotRunnable(df_getter = self.df_getter, data_downloader=self.data_downloader, t_max_candles=self.t_max_candles, config=self.config, t_start=self.t_start)
         QThreadPool.globalInstance().start(runnable)
     
     def _change_dates(self):
-        runnable = ChangeTextDateRunnable(df_getter = self.df_getter, data_downloader=self.data_downloader, t_max_candles=self.t_max_candles, config=self.config, t_start_date=self.t_start_date, t_end_date=self.t_end_date)
+        runnable = ChangeTextDateRunnable(df_getter = self.df_getter, data_downloader=self.data_downloader, t_max_candles=self.t_max_candles, config=self.config)
         QThreadPool.globalInstance().start(runnable)
 
     def tf_changed(self, t):
@@ -156,3 +148,15 @@ class DataPlotterWidget(QWidget):
 
         pass
     
+    def check_candle_start(self):
+        try:
+            df = self.df_getter.get_df()
+            if df is not None:
+                l = get_candles_num(df, self.t_max_candles,self.config)
+                if len(df.index) - l < int(self.t_start.text()):
+                    self.t_start.setText(str(len(df.index) - l))
+                self.l_start_date.setText(str(Utilities.ms_to_datetime(df.index[int(self.t_start.text())])))
+        except Exception as e:
+            print(e)
+            self.l_start_date.setText("")
+
