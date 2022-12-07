@@ -67,19 +67,21 @@ class PlotRunnable(QRunnable):
             s = int(self.t_start.text())
             data = [go.Candlestick(x=pd.to_datetime(df.index[s:s+l], unit='ms'),
                                     open = df.iloc[s:s+l,0], high = df.iloc[s:s+l,1], 
-                                    low = df.iloc[s:s+l,2], close = df.iloc[s:s+l,3])]
+                                    low = df.iloc[s:s+l,2], close = df.iloc[s:s+l,3], name = "Candles")]
             fig = go.Figure(data = data)
-
-            #print(self.indicators_widget.lw_base_indicators.selectedItems())
             for indicator in self.indicators_widget.lw_base_indicators.selectedItems():
                 f = self.indicators_widget.base_indicators[indicator.text()]
-                ind = f(df = df, start = s, end = s + l)
-                fig.add_trace(go.Scatter(x = pd.to_datetime(ind.index, unit='ms'), 
-                                         y = ind.iloc[:,0],
-                                         opacity = 0.8,
-                                         line=dict(width=2), 
-                                         name = indicator.text()
-                                         ))
+                ind, on_main = f(df = df, start = s, end = s + l)
+                if on_main:
+                    for i in range(len(ind.columns)):
+                        fig.add_trace(go.Scatter(x = pd.to_datetime(ind.index, unit='ms'), 
+                                                 y = ind.iloc[:,i],
+                                                 opacity = 0.8,
+                                                 line=dict(width=2), 
+                                                 name = ind.columns[i]
+                                                 ))
+                else:
+                    pass
             fig.update_layout(xaxis_rangeslider_visible=False)
             fig.show()
         except Exception as e:

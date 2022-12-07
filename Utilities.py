@@ -1,6 +1,7 @@
 import datetime
 from bisect import bisect_left
 import numpy as np
+import pandas as pd
 def ms_to_datetime(ms):
     return datetime.datetime.fromtimestamp(ms/1000.0)
     
@@ -26,3 +27,9 @@ def moving_average(a, n=3) :
     ret = np.cumsum(a, dtype=float)
     ret[n:] = ret[n:] - ret[:-n]
     return ret[n - 1:] / n
+
+def std_dev(a, n):
+    index = np.array([i for i in range(len(a))])
+    df = pd.DataFrame(data=a, index=index)
+    std = df.rolling(n).std().values
+    return std
