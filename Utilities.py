@@ -1,5 +1,6 @@
 import datetime
 from bisect import bisect_left
+import numpy as np
 def ms_to_datetime(ms):
     return datetime.datetime.fromtimestamp(ms/1000.0)
     
@@ -20,3 +21,8 @@ tf_to_sec = {'1m': 60, '3m': 3 * 60, '5m':5*60, '15m': 15 * 60, '30m': 30*60,
              '1d': 24 * 60*60, '3d': 3 * 24 * 60 * 60,
              '1w': 7 * 24 * 60 * 60, '1M': 30*24*60*60 # 1 month is ambigous
             }
+
+def moving_average(a, n=3) :
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return ret[n - 1:] / n

@@ -5,6 +5,7 @@ import PyQt6.QtWidgets as QtWidgets
 from PyQt6.QtCore import QThread, pyqtSignal, QRunnable, QThreadPool
 from pathlib import Path
 import inspect
+import numpy as np
 import datetime
 import plotly.graph_objects as go
 import Indicators.BaseIndicators as BaseIndicators
@@ -50,22 +51,36 @@ def get_candles_num(df, t_max_candles, config):
     return l
 
 class PlotRunnable(QRunnable):
-    def __init__(self, df_getter, data_downloader, t_max_candles, config, t_start):
+    def __init__(self, df_getter, data_downloader, t_max_candles, config, t_start, indicators_widget):
         super(PlotRunnable, self).__init__()
         self.data_downloader = data_downloader
         self.t_max_candles = t_max_candles
         self.config = config
         self.df_getter = df_getter
         self.t_start = t_start
+        self.indicators_widget = indicators_widget
 
     def run(self):
         try:
             df = self.df_getter.get_df()
             l = get_candles_num(df, self.t_max_candles, self.config)
             s = int(self.t_start.text())
-            fig = go.Figure(data = [go.Candlestick(x=pd.to_datetime(df.index[s:s+l], unit='ms'),
+            data = [go.Candlestick(x=pd.to_datetime(df.index[s:s+l], unit='ms'),
                                     open = df.iloc[s:s+l,0], high = df.iloc[s:s+l,1], 
-                                    low = df.iloc[s:s+l,2], close = df.iloc[s:s+l,3])])
+                                    low = df.iloc[s:s+l,2], close = df.iloc[s:s+l,3])]
+            fig = go.Figure(data = data)
+
+            #print(self.indicators_widget.lw_base_indicators.selectedItems())
+            for indicator in self.indicators_widget.lw_base_indicators.selectedItems():
+                f = self.indicators_widget.base_indicators[indicator.text()]
+                ind = f(df = df, start = s, end = s + l)
+                fig.add_trace(go.Scatter(x = pd.to_datetime(ind.index, unit='ms'), 
+                                         y = ind.iloc[:,0],
+                                         opacity = 0.8,
+                                         line=dict(width=2), 
+                                         name = indicator.text()
+                                         ))
+            fig.update_layout(xaxis_rangeslider_visible=False)
             fig.show()
         except Exception as e:
             print(e)
@@ -86,10 +101,11 @@ class ChangeTextDateRunnable(QRunnable):
             print(e)
 
 class DataPlotterWidget(QWidget):
-    def __init__(self, data_downloader):
+    def __init__(self, data_downloader, indicators_widget):
         super(DataPlotterWidget, self).__init__()
         self.config = json.load(open("config.json"))
         self.data_downloader = data_downloader
+        self.indicators_widget = indicators_widget
         self.layout = QVBoxLayout()
         self.default_num_candles = 2000
 
@@ -129,7 +145,7 @@ class DataPlotterWidget(QWidget):
 
 
     def plot(self):
-        runnable = PlotRunnable(df_getter = self.df_getter, data_downloader=self.data_downloader, t_max_candles=self.t_max_candles, config=self.config, t_start=self.t_start)
+        runnable = PlotRunnable(df_getter = self.df_getter, data_downloader=self.data_downloader, t_max_candles=self.t_max_candles, config=self.config, t_start=self.t_start, indicators_widget = self.indicators_widget)
         QThreadPool.globalInstance().start(runnable)
     
     def _change_dates(self):

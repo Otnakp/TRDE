@@ -21,12 +21,12 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        self.setWindowTitle("My App")
+        self.setWindowTitle("TRDE")
 
         layout = QGridLayout()
         self.data_downloader_widget = DataDownloader()
         self.indicators_widget = IndicatorsWidget()
-        self.data_plotter_widget = DataPlotterWidget(self.data_downloader_widget)
+        self.data_plotter_widget = DataPlotterWidget(self.data_downloader_widget, self.indicators_widget)
         #self.data_downloader_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
         #self.indicators_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
         #self.data_plotter_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.MinimumExpanding)
