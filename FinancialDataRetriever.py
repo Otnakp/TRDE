@@ -2,7 +2,7 @@ import ccxt
 from pathlib import Path
 import pandas as pd
 tf_to_sec = {'1m': 60, '3m': 3 * 60, '5m':5*60, '15m': 15 * 60, '30m': 30*60,
-             '1h':60*60, '2h':2*60*60, '4h': 4*60*60, '8h': 8*60*60, '12h': 12*60*60,
+             '1h':60*60, '2h':2*60*60, '4h': 4*60*60, '6h':6*60*60,'8h': 8*60*60, '12h': 12*60*60,
              '1d': 24 * 60*60, '3d': 3 * 24 * 60 * 60,
              '1w': 7 * 24 * 60 * 60, '1M': 30*24*60*60 # 1 month is ambigous
             }
@@ -30,23 +30,32 @@ class FDR:
         since = 1 + 1000*tf_to_sec[tf] # start from low
         prev_since = since
         data = {} # Using a dictionary is good because it automatically removes duplicates
+        existed = False
+        old_df = None
+        start = -1
         try:
             df = pd.read_csv(Path(path) / Path(ticker.replace('/','_') / Path(tf+'.csv')), index_col = 0)
+            old_df = df
             since = df.index[-1]
             prev_since = since 
             if progress is not None:
                 progress.emit(since)
-            data = df.T.to_dict("list")
-        except Exception:
+            #data = df.T.to_dict("list")
+            data[df.index[-1]] = list(df.iloc[-1,:].to_numpy())
+            start = df.index[-1]
+            existed = True
+            #print(data)
+        except Exception as e:
             if verbose:
                 print("pass")
+            print(e)
             pass # data has never been retrieved before
         if verbose:
             print(f"Starting to retrieve for {ticker}, tf: {tf}")
         while True:
             if string_progress is not None:
                 string_progress.emit(f"{ticker} {tf}")
-            d = binance.fetch_ohlcv(ticker,tf,since=since - (1000*tf_to_sec[tf]),limit=1000) # this grabs 998
+            d = binance.fetch_ohlcv(ticker,tf,since=int(since) - (1000*tf_to_sec[tf]),limit=1000) # this grabs 998
             #print(since)
             #print(f"{d[0]} -> {d[-1]}")
             prev_since = since
@@ -69,7 +78,15 @@ class FDR:
                     p = Path(path) / Path(ticker.replace('/','_'))
                     p.mkdir(parents=True, exist_ok=True)
                     p = p / Path(tf + '.csv')
-                    df.to_csv(p)
+                    if existed:
+                        #del data[start]
+                        new_df = pd.DataFrame.from_dict(data, orient='index')
+                        new_df.rename(columns={0:'0', 1:'1', 2:'2', 3:'3', 4:'4'}, inplace=True) # rename otherwise it wont merge
+                        old_df.rename(columns={0:'0', 1:'1', 2:'2', 3:'3', 4:'4'}, inplace=True)
+                        r = pd.concat([old_df, new_df]) 
+                        r.to_csv(p)
+                    else:
+                        df.to_csv(p)
                     if verbose:
                         print("Saved")
                 return df

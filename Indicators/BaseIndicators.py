@@ -21,6 +21,8 @@
 import pandas as pd
 import numpy as np
 import Utilities
+from ta.trend import MACD as MACD_IMPORTED
+import plotly.graph_objects as go
 def MA10(**kwargs):
     # moving average 10
     back = 10
@@ -31,7 +33,9 @@ def MA10(**kwargs):
     ma = df.iloc[start:end, 3].to_numpy()
     ma = Utilities.moving_average(ma, back)
     index = np.array(df.index[start + back - 1: end])
-    return pd.DataFrame(data = ma, index = index,columns=['MA10']), True
+    df = pd.DataFrame(data = ma, index = index,columns=['MA10'])
+    data = [go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,0], opacity = 0.8, line=dict(width=2), name = "MA100")]
+    return data, True
 
 def MA100(**kwargs):
     # moving average 10
@@ -43,7 +47,9 @@ def MA100(**kwargs):
     ma = df.iloc[start:end, 3].to_numpy()
     ma = Utilities.moving_average(ma, back)
     index = np.array(df.index[start + back - 1: end])
-    return pd.DataFrame(data = ma, index = index, columns=['MA100']), True
+    df =  pd.DataFrame(data = ma, index = index, columns=['MA100'])
+    data = [go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,0], opacity = 0.8, line=dict(width=2), name = "MA100")]
+    return data, True
 
 
 def EMA100(**kwargs):
@@ -53,7 +59,9 @@ def EMA100(**kwargs):
     end = kwargs['end']
     ema = df.iloc[start:end, 3].ewm(span = back).mean()
     ema.dropna(inplace = True)
-    return pd.DataFrame(data = ema.values, index = ema.index, columns=['EMA100']), True
+    df = pd.DataFrame(data = ema.values, index = ema.index, columns=['EMA100'])
+    data = [go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,0], opacity = 0.8, line=dict(width=2), name = "EMA100")]
+    return data, True
 
 def BOLL(**kwargs):
     df = kwargs['df']
@@ -77,8 +85,26 @@ def BOLL(**kwargs):
     cols = ['BOLL upper', 'BOLL mid', 'BOLL lower']
     index = np.array(df.index[start + n - 1: end])
     m = np.c_[upper, ma, lower]
-    return pd.DataFrame(data = m, index=index, columns=cols), True
+    df = pd.DataFrame(data = m, index=index, columns=cols)
+    data = [
+        go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,0], opacity = 0.8, line=dict(width=2), name = "BOLL"),
+        go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,1], opacity = 0.8, line=dict(width=2), name = "BOLL"),
+        go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,2], opacity = 0.8, line=dict(width=2), name = "BOLL"),
+    ]
+    return data, True
 
 
 def MACD(**kwargs):
-    pass
+    df = kwargs['df']
+    start = kwargs['start']
+    end = kwargs['end']
+    macd = MACD_IMPORTED(close=df.iloc[start:end, 3], 
+            window_slow=26,
+            window_fast=12, 
+            window_sign=9)
+    
+    data = [go.Bar(x=df.index, y=macd.macd_diff(), name='macd_diff'), 
+    go.Scatter(x=df.index, y=macd.macd(), line=dict(color='black', width=2), name='macd'),
+    go.Scatter(x=df.index, y=macd.macd_signal(), line=dict(color='blue', width=1), name='macd signal')
+    ]
+    return data, False

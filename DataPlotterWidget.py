@@ -2,6 +2,7 @@ from FinancialDataRetriever import FDR
 import pandas as pd
 from PyQt6.QtWidgets import QWidget,QComboBox, QSizePolicy, QVBoxLayout,QLabel, QLineEdit,QPushButton, QHBoxLayout, QListWidget, QListWidgetItem, QStackedLayout, QAbstractItemView, QCalendarWidget
 import PyQt6.QtWidgets as QtWidgets
+from plotly.subplots import make_subplots
 from PyQt6.QtCore import QThread, pyqtSignal, QRunnable, QThreadPool
 from pathlib import Path
 import inspect
@@ -68,21 +69,27 @@ class PlotRunnable(QRunnable):
             data = [go.Candlestick(x=pd.to_datetime(df.index[s:s+l], unit='ms'),
                                     open = df.iloc[s:s+l,0], high = df.iloc[s:s+l,1], 
                                     low = df.iloc[s:s+l,2], close = df.iloc[s:s+l,3], name = "Candles")]
-            fig = go.Figure(data = data)
+            #fig = go.Figure(data = data)
+            rows_graphs = []
+            num_rows = 1
             for indicator in self.indicators_widget.lw_base_indicators.selectedItems():
                 f = self.indicators_widget.base_indicators[indicator.text()]
                 ind, on_main = f(df = df, start = s, end = s + l)
-                if on_main:
-                    for i in range(len(ind.columns)):
-                        fig.add_trace(go.Scatter(x = pd.to_datetime(ind.index, unit='ms'), 
-                                                 y = ind.iloc[:,i],
-                                                 opacity = 0.8,
-                                                 line=dict(width=2), 
-                                                 name = ind.columns[i]
-                                                 ))
-                else:
-                    pass
+                rows_graphs.append((ind, on_main))
+                num_rows += int(not on_main)
+            fig = make_subplots(rows=num_rows, cols=1, shared_xaxes=True)
+            fig.add_trace(data[0])
             fig.update_layout(xaxis_rangeslider_visible=False)
+            row = 1
+            for el in rows_graphs:
+                ind, on_main = el
+                if on_main:
+                    for i in range(len(ind)):
+                        fig.add_trace(ind[i], row = 1, col = 1)
+                else:
+                    row += 1
+                    for i in range(len(ind)):
+                        fig.add_trace(ind[i], row = row, col = 1)
             fig.show()
         except Exception as e:
             print(e)
