@@ -43,13 +43,22 @@ def MA100(**kwargs):
     df = kwargs['df'] # pandas df as created by the DataDownloader.py script
     start = kwargs['start']
     end = kwargs['end']
-    #ma = df.iloc[start:end, 3].rolling(window=back).mean()# 3 is close
-    ma = df.iloc[start:end, 3].to_numpy()
+    ma_start = -1
+    index_start = -1
+    if start - back < 1:
+        ma_start = 0
+        index_start = start + back - 1
+    else:
+        ma_start = start-back +1
+        index_start = start
+        
+    ma = df.iloc[ma_start:end, 3].to_numpy()
     ma = Utilities.moving_average(ma, back)
-    index = np.array(df.index[start + back - 1: end])
+    index = np.array(df.index[index_start: end])
     df =  pd.DataFrame(data = ma, index = index, columns=['MA100'])
     data = [go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,0], opacity = 0.8, line=dict(width=2), name = "MA100")]
     return data, True
+
 
 
 def EMA100(**kwargs):

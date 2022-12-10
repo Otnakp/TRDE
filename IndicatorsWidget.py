@@ -15,7 +15,6 @@ indicators in Indicators/PersonalizedIndicators.py as function.
 class IndicatorsWidget(QWidget):
     def __init__(self):
         super(IndicatorsWidget, self).__init__()
-        Path("Indicators").mkdir(parents=True, exist_ok=True)
         self.layout = QHBoxLayout()
         self.lw_base_indicators = QListWidget()
         self.lw_personalized_indicators = QListWidget()

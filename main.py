@@ -1,6 +1,7 @@
 from DataDownloader import DataDownloader
 from IndicatorsWidget import IndicatorsWidget
 from DataPlotterWidget import DataPlotterWidget
+from BotWidget import BotSelectorWidget
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt6.QtGui import QPalette, QColor
@@ -27,6 +28,7 @@ class MainWindow(QMainWindow):
         self.data_downloader_widget = DataDownloader()
         self.indicators_widget = IndicatorsWidget()
         self.data_plotter_widget = DataPlotterWidget(self.data_downloader_widget, self.indicators_widget)
+        self.bot_selector_widget = BotSelectorWidget()
         #self.data_downloader_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
         #self.indicators_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
         #self.data_plotter_widget.setSizePolicy(QSizePolicy.Policy.MinimumExpanding,QSizePolicy.Policy.MinimumExpanding)
@@ -38,7 +40,7 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(self.indicators_widget, 0, 1)
         layout.addWidget(self.data_plotter_widget, 0, 2)
-        layout.addWidget(IndicatorsWidget(), 1, 0)
+        layout.addWidget(self.bot_selector_widget, 1, 0)
         layout.addWidget(IndicatorsWidget(), 1, 1)
         layout.addWidget(IndicatorsWidget(), 1, 2)
         
