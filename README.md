@@ -4,6 +4,7 @@ Download crypto financial data. Setup your own personalized indicators. Plot the
 To use the GUI please clone the repo and install the needed libraries from `requirements.txt`. This program was developed with python 3.10.6, but it will probably work with lower versions too.
 ## Download
 ![download](/images/download.png "Download")
+
 Download cryptocurrency data from Binance. Select the pair, select the time frame and click "Download or Update". **Be careful** that this has two main issues:
 
  - Downloading the 1 minute data is extremely slow because Binance throttles the requests. Leave it there and just wait, it will end eventually
@@ -12,6 +13,7 @@ Download cryptocurrency data from Binance. Select the pair, select the time fram
 You can also download or update all the data. The "or update" part means that if you already downloaded it all it won't download it all over again, it will just get the latest candles. The data is stored in the `/data` folder.
 ## Indicators
 ![indicators](/images/indicators.png "Indicators")
+
 Select the indicators you would like to plot. You can select multiple or none. You can choose from the base indicators column or the personalized indicators column.
 ### Write your own indicators
 Go in `Indicators/PersonalizedIndicators.py` and add a function. That will be your new indicator. To see examples go in `Indicators/BaseIndicators.py`. Your personalized indicator must return a list containing plotly `graph_object` entries and if the indicator stays on the main window (where the candles are) or below (for example the volume or MACD). Check out this example for exponential moving average. 
