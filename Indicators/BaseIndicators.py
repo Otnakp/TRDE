@@ -23,6 +23,7 @@ import numpy as np
 import Utilities
 from ta.trend import MACD as MACD_IMPORTED
 import plotly.graph_objects as go
+
 def MA10(**kwargs):
     # moving average 10
     back = 10
@@ -66,6 +67,7 @@ def EMA100(**kwargs):
     df = kwargs['df']
     start = kwargs['start']
     end = kwargs['end']
+    
     ema = df.iloc[start:end, 3].ewm(span = back).mean()
     ema.dropna(inplace = True)
     df = pd.DataFrame(data = ema.values, index = ema.index, columns=['EMA100'])
@@ -96,9 +98,9 @@ def BOLL(**kwargs):
     m = np.c_[upper, ma, lower]
     df = pd.DataFrame(data = m, index=index, columns=cols)
     data = [
-        go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,0], opacity = 0.8, line=dict(width=2), name = "BOLL"),
-        go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,1], opacity = 0.8, line=dict(width=2), name = "BOLL"),
-        go.Scatter(x = pd.to_datetime(df.index, unit='ms'), y = df.iloc[:,2], opacity = 0.8, line=dict(width=2), name = "BOLL"),
+        go.Scatter(x = pd.to_datetime(index, unit='ms'), y = df.iloc[:,0], opacity = 0.8, line=dict(width=2), name = "BOLL"),
+        go.Scatter(x = pd.to_datetime(index, unit='ms'), y = df.iloc[:,1], opacity = 0.8, line=dict(width=2), name = "BOLL"),
+        go.Scatter(x = pd.to_datetime(index, unit='ms'), y = df.iloc[:,2], opacity = 0.8, line=dict(width=2), name = "BOLL"),
     ]
     return data, True
 
