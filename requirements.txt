@@ -1,2 +1,4 @@
 ccxt
 matplotlib
+plotly
+pyqt6
