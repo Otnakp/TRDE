@@ -77,6 +77,12 @@ class PlotRunnable(QRunnable):
                 ind, on_main = f(df = df, start = s, end = s + l)
                 rows_graphs.append((ind, on_main))
                 num_rows += int(not on_main)
+            for indicator in self.indicators_widget.lw_personalized_indicators.selectedItems():
+                f = self.indicators_widget.personalized_indicators[indicator.text()]
+                ind, on_main = f(df=df, start = s, end = s+l)
+                rows_graphs.append((ind,on_main))
+                num_rows += int(not on_main)
+                
             fig = make_subplots(rows=num_rows, cols=1, shared_xaxes=True, vertical_spacing=0.01, )
             fig.add_trace(data[0])
             fig.update_layout(xaxis_rangeslider_visible=False)

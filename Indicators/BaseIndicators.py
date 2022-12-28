@@ -67,7 +67,6 @@ def EMA100(**kwargs):
     df = kwargs['df']
     start = kwargs['start']
     end = kwargs['end']
-    
     ema = df.iloc[start:end, 3].ewm(span = back).mean()
     ema.dropna(inplace = True)
     df = pd.DataFrame(data = ema.values, index = ema.index, columns=['EMA100'])
